@@ -1,0 +1,7 @@
+hive -f extract.q
+hadoop fs -makedir /hadoop 
+hadoop fs –put ./data/data.txt ./hadoop 
+hadoop jar ./Bayes.jar hw6.MultiMovieRecommender /hadoop/ /hadoop/temp /hadoop/output/ 
+hadoop fs –get ./hadoop/output/part-r-00000 ./ 
+hive -f constructtrain.q 
+hive -f classification.q 

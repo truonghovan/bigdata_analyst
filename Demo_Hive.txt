@@ -1,0 +1,50 @@
+Data Movies
+Các field: userid, titleid, videotitles, videocategory, region, devicetype
+streamtype, streambandwidth, streamingprotocol, videoplayedtime
+(id người dùng, id tiêu đề, tiêu đề video, danh mục video, khu vực, loại thiết bị, 
+loại luồng, độ rộng băng tần của luồng, luồng trong giao thức, thời gian phát video )
+I. Tải data movies:
+b1. download data
+#wget https://raw.githubusercontent.com/mrugenmike/cmpe282-lab2-movieStreamAnalysis/master/stream_movie_data.csv
+b2. kiểm tra file data movie
+# ls
+b3. Đổi tên file thành moviedata.csv
+# mv stream_movie_data.csv moviedata.csv
+II. Load data
+b1. Create table movies
+hive > 
+CREATE TABLE IF NOT EXISTS movies 
+(userid String,
+titleid int,
+videotitles string,
+videocategory string,
+region String,
+devicetype string,
+streamtype string,
+streambandwidth int,
+streaminprotocol string,
+videoplayedtime string) 
+comment 'Stream Analysis Data' 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' 
+stored as textfile tblproperties('skip.header.line.count'='1');
+// định dạng hàng, phân tách bởi dấu ',' lưu trữ dạng tệp văn bản bỏ qua line 1
+b2. load data
+hive >load data local inpath '/home/hadoopuser/moviedata.csv' into table movies;  
+III. Query 
+Kiểm tra thử 10 dòng dữ liệu
+select * from movies limit 10;
+1. Truy vấn số lượng video từ các khu vực
+select count(distinct(videotitles)),region from movies 
+where movies.userid in (select distinct userid from movies) 
+group by movies.region;
+2. Truy vấn số lượng userid theo loại thiết bị
+select count(distinct(userid)),devicetype 
+from movies 
+group by devicetype;
+3. Truy vấn số lượng userid theo videotitles, sắp xếp theo thứ tự giảm dần với giới hạn là 5
+select count(userid) from movies;
+select count(distinct(userid)) as count,videotitles from movies group by videotitles order by count desc limit 5;
+4. Truy vấn videotitles có devicetype = 'tablet', videocategory = 'Thriller', region = 'UK'
+và streambandwidth = '400';
+Select videotitles from movies where devicetype = 'tablet' and videocategory = 'Thriller' 
+and region = 'UK' and streambandwidth = '400';
